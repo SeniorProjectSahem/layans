@@ -6,25 +6,25 @@ class RentalsController < ApplicationController
   def index
     @rentals = Rental.all
   end
-
-  # GET /rentals/1
-  # GET /rentals/1.json
-  def show
-  end
-  
-  def change_to_accept
+def change_to_accept
     @rental = Rental.find params[:rental_id]
     @rental.update_column(:status, "accepted") 
     Notification.create(recipient: @rental.user, actor: current_user, action: "accepted", notifiable: @rental)
     redirect_to rentals_url
   end
+  # GET /rentals/1
+  # GET /rentals/1.json
+  def show
+  end
 
   # GET /rentals/new
   def new
-    @rental = Rental.new
-    @rental.user = User.find(params[:user_id])
+    if user_signed_in?
+    @rental = current_user.rentals.build
      @rental.item = Item.find(params[:item_id])
-     
+   else
+     redirect_to user_session_url
+   end
   end
 
   # GET /rentals/1/edit
